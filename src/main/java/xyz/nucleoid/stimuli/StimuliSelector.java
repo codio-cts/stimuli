@@ -1,6 +1,5 @@
 package xyz.nucleoid.stimuli;
 
-import com.google.common.base.Preconditions;
 import com.google.common.collect.AbstractIterator;
 import net.minecraft.entity.Entity;
 import net.minecraft.server.MinecraftServer;
@@ -29,12 +28,16 @@ public final class StimuliSelector {
         return this.acquireInvokers(entity.getServer(), EventSource.forEntity(entity));
     }
 
+    public EventInvokers forGlobal(MinecraftServer server) {
+        return this.acquireInvokers(server, EventSource.global());
+    }
+
     public EventInvokers forEntityAt(Entity entity, BlockPos pos) {
         return this.acquireInvokers(entity.getServer(), EventSource.forEntityAt(entity, pos));
     }
 
     public EventInvokers forCommandSource(ServerCommandSource source) {
-        return this.acquireInvokers(source.getServer(), EventSource.forCommandSource(source));
+        return this.acquireInvokers(source.getMinecraftServer(), EventSource.forCommandSource(source));
     }
 
     EventInvokers acquireInvokers(@Nullable MinecraftServer server, EventSource source) {

@@ -1,6 +1,5 @@
 package xyz.nucleoid.stimuli.mixin.block;
 
-import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.FarmlandBlock;
 import net.minecraft.entity.Entity;
@@ -20,11 +19,11 @@ import xyz.nucleoid.stimuli.event.block.BlockTrampleEvent;
 
 @Mixin(FarmlandBlock.class)
 public class FarmlandBlockMixin {
-    @Inject(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/entity/Entity;Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", shift = At.Shift.BEFORE), cancellable = true)
-    private void breakFarmland(World world, BlockState state, BlockPos pos, Entity entity, float fallDistance, CallbackInfo ci) {
+    @Inject(method = "onLandedUpon", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/FarmlandBlock;setToDirt(Lnet/minecraft/block/BlockState;Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;)V", shift = At.Shift.BEFORE), cancellable = true)
+    private void breakFarmland(World world, BlockPos pos, Entity entity, float distance, CallbackInfo ci) {
         if (world instanceof ServerWorld serverWorld && entity instanceof LivingEntity livingEntity) {
             try (var invokers = Stimuli.select().forEntityAt(entity, pos)) {
-                var trampleResult = invokers.get(BlockTrampleEvent.EVENT).onTrample(livingEntity, serverWorld, pos, state, Blocks.DIRT.getDefaultState());
+                var trampleResult = invokers.get(BlockTrampleEvent.EVENT).onTrample(livingEntity, serverWorld, pos, world.getBlockState(pos), Blocks.DIRT.getDefaultState());
                 if (trampleResult == ActionResult.FAIL) {
                     ci.cancel();
                     return;

@@ -1,5 +1,6 @@
 package xyz.nucleoid.stimuli.mixin.projectile;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
@@ -14,7 +15,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import xyz.nucleoid.stimuli.Stimuli;
 import xyz.nucleoid.stimuli.event.projectile.ArrowFireEvent;
 
@@ -23,7 +23,6 @@ public class BowItemMixin {
     @Inject(
             method = "onStoppedUsing",
             at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/world/World;spawnEntity(Lnet/minecraft/entity/Entity;)Z"),
-            locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
     public void onStoppedUsing(
@@ -32,14 +31,9 @@ public class BowItemMixin {
             LivingEntity user,
             int remainingUseTicks,
             CallbackInfo ci,
-            PlayerEntity player,
-            boolean infinite,
-            ItemStack arrowStack,
-            int progressTicks,
-            float progress,
-            boolean creativeOnlyPickup,
-            ArrowItem item,
-            PersistentProjectileEntity projectile
+            @Local PlayerEntity player,
+            @Local ArrowItem item,
+            @Local PersistentProjectileEntity projectile
     ) {
         if (!(player instanceof ServerPlayerEntity)) {
             return;

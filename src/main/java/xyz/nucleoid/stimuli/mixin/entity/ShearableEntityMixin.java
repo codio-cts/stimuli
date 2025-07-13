@@ -47,7 +47,7 @@ public class ShearableEntityMixin {
             return false;
         }
 
-        if (!player.getWorld().isClient()) {
+        if (!player.getEntityWorld().isClient()) {
             // Entities are all subclasses of LivingEntity
             var entity = (LivingEntity) shearable;
             var serverPlayer = (ServerPlayerEntity) player;

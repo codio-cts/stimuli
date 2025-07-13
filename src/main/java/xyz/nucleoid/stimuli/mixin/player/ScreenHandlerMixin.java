@@ -11,53 +11,59 @@ import net.minecraft.util.collection.DefaultedList;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.stimuli.Stimuli;
 import xyz.nucleoid.stimuli.event.item.ItemThrowEvent;
 
+import java.util.List;
+
 @Mixin(ScreenHandler.class)
 public class ScreenHandlerMixin {
-    @Shadow @Final public DefaultedList<Slot> slots;
+    @Shadow @Final public List<Slot> slots;
 
-    @Inject(method = "internalOnSlotClick", at = @At("HEAD"), cancellable = true)
-    private void onSlotAction(int slot, int button, SlotActionType type, PlayerEntity player, CallbackInfo ci) {
-        if (player.getWorld().isClient) {
+    @Inject(method = "method_30010", at = @At("HEAD"), cancellable = true)
+    private void onSlotAction(int slot, int button, SlotActionType type, PlayerEntity player, CallbackInfoReturnable<ItemStack> cir) {
+        if (player.getEntityWorld().isClient) {
             return;
         }
 
         if (type == SlotActionType.THROW || type == SlotActionType.PICKUP) {
             ItemStack stack = null;
             if (type == SlotActionType.PICKUP && slot == -999) {
-                stack = player.currentScreenHandler.getCursorStack();
+                stack = player.inventory.getCursorStack();
             } else if (type == SlotActionType.THROW && slot >= 0 && slot < this.slots.size()) {
                 stack = this.slots.get(slot).getStack();
             }
 
             if (stack != null) {
                 if (this.shouldBlockThrowingItems(player, slot, stack)) {
-                    player.currentScreenHandler.setCursorStack(stack);
-                    ci.cancel();
+                    player.inventory.setCursorStack(stack);
+                    //ci.cancel();
+                    cir.setReturnValue(stack);
                 }
             }
         }
     }
 
-    @Inject(method = "onClosed", at = @At("HEAD"))
+    @Inject(method = "close", at = @At("HEAD"))
     private void onClosed(PlayerEntity player, CallbackInfo ci) {
-        var cursor = player.currentScreenHandler.getCursorStack();
+        var cursor = player.inventory.getCursorStack();
         if (cursor.isEmpty()) {
             return;
         }
 
         if (this.shouldBlockThrowingItems(player, -999, cursor)) {
-            if (player.getInventory().insertStack(cursor)) {
-                player.currentScreenHandler.setCursorStack(ItemStack.EMPTY);
+            if (player.inventory.insertStack(cursor)) {
+                player.inventory.setCursorStack(ItemStack.EMPTY);
             }
         }
     }
 
+    @Unique
     private boolean shouldBlockThrowingItems(PlayerEntity player, int slot, ItemStack stack) {
         if (player instanceof ServerPlayerEntity serverPlayer) {
             try (var invokers = Stimuli.select().forEntity(player)) {

@@ -1,5 +1,6 @@
 package xyz.nucleoid.stimuli.mixin.block;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.Blocks;
 import net.minecraft.block.TurtleEggBlock;
@@ -19,7 +20,7 @@ import xyz.nucleoid.stimuli.event.block.BlockTrampleEvent;
 @Mixin(TurtleEggBlock.class)
 public class TurtleEggBlockMixin {
     @Inject(method = "tryBreakEgg", at = @At(value = "INVOKE", target = "Lnet/minecraft/block/TurtleEggBlock;breakEgg(Lnet/minecraft/world/World;Lnet/minecraft/util/math/BlockPos;Lnet/minecraft/block/BlockState;)V", shift = At.Shift.BEFORE), cancellable = true)
-    private void trampleTurtleEgg(World world, BlockState from, BlockPos pos, Entity entity, int inverseChance, CallbackInfo ci) {
+    private void trampleTurtleEgg(World world, BlockPos pos, Entity entity, int inverseChance, CallbackInfo ci, @Local BlockState from) {
         if (world instanceof ServerWorld serverWorld && entity instanceof LivingEntity livingEntity) {
             BlockState to = Blocks.AIR.getDefaultState();
             if (from.contains(TurtleEggBlock.EGGS)) {

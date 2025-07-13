@@ -1,7 +1,7 @@
 package xyz.nucleoid.stimuli.mixin.player;
 
 import net.minecraft.inventory.CraftingResultInventory;
-import net.minecraft.recipe.RecipeEntry;
+import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeUnlocker;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -13,9 +13,9 @@ import xyz.nucleoid.stimuli.event.item.ItemCraftEvent;
 @Mixin(CraftingResultInventory.class)
 public abstract class CraftingResultInventoryMixin implements RecipeUnlocker {
     @Override
-    public boolean shouldCraftRecipe(World world, ServerPlayerEntity player, RecipeEntry<?> recipe) {
+    public boolean shouldCraftRecipe(World world, ServerPlayerEntity player, Recipe<?> recipe) {
         try (var invokers = Stimuli.select().forEntity(player)) {
-            var result = invokers.get(ItemCraftEvent.EVENT).onCraft(player, recipe.value());
+            var result = invokers.get(ItemCraftEvent.EVENT).onCraft(player, recipe);
             if (result == ActionResult.FAIL) {
                 return false;
             }

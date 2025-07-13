@@ -8,13 +8,12 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.damage.DamageSource;
 import net.minecraft.item.ItemStack;
 import net.minecraft.loot.LootTable;
-import net.minecraft.loot.context.LootContextParameterSet;
+import net.minecraft.loot.context.LootContext;
 import net.minecraft.util.ActionResult;
 import net.minecraft.world.World;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.stimuli.Stimuli;
@@ -32,7 +31,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "damage", at = @At("HEAD"), cancellable = true)
     private void onDamage(DamageSource source, float amount, CallbackInfoReturnable<Boolean> ci) {
-        if (this.getWorld().isClient) {
+        if (this.getEntityWorld().isClient) {
             return;
         }
 
@@ -48,7 +47,7 @@ public abstract class LivingEntityMixin extends Entity {
 
     @Inject(method = "onDeath", at = @At("HEAD"), cancellable = true)
     private void callDeathListener(DamageSource source, CallbackInfo ci) {
-        if (this.getWorld().isClient) {
+        if (this.getEntityWorld().isClient) {
             return;
         }
 
@@ -64,15 +63,15 @@ public abstract class LivingEntityMixin extends Entity {
         }
     }
 
-    @WrapOperation(method = "dropLoot", at = @At(value = "INVOKE", target = "Lnet/minecraft/loot/LootTable;generateLoot(Lnet/minecraft/loot/context/LootContextParameterSet;JLjava/util/function/Consumer;)V"))
-    private void modifyDroppedLoot(LootTable instance, LootContextParameterSet parameters, long seed, Consumer<ItemStack> lootConsumer, Operation<Void> original) {
-        if (this.getWorld().isClient) {
-            original.call(instance, parameters, seed, lootConsumer);
+    @WrapOperation(method = "dropLoot", at = @At(value = "INVOKE", target = "Lnet/minecraft/loot/LootTable;generateLoot(Lnet/minecraft/loot/context/LootContext;Ljava/util/function/Consumer;)V"))
+    private void modifyDroppedLoot(LootTable instance, LootContext context, Consumer<ItemStack> lootConsumer, Operation<Void> original) {
+        if (this.getEntityWorld().isClient) {
+            original.call(instance, context, lootConsumer);
             return;
         }
 
         try (var invokers = Stimuli.select().forEntity(this)) {
-            var droppedStacks = instance.generateLoot(parameters, seed);
+            var droppedStacks = instance.generateLoot(context);
 
             var result = invokers.get(EntityDropItemsEvent.EVENT)
                     .onDropItems((LivingEntity) (Object) this, droppedStacks);

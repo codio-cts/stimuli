@@ -1,8 +1,8 @@
 package xyz.nucleoid.stimuli.mixin.player;
 
 import net.minecraft.network.ClientConnection;
+import net.minecraft.network.Packet;
 import net.minecraft.network.listener.PacketListener;
-import net.minecraft.network.packet.Packet;
 import net.minecraft.server.network.ServerPlayNetworkHandler;
 import net.minecraft.util.ActionResult;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,7 +15,7 @@ import xyz.nucleoid.stimuli.event.player.PlayerC2SPacketEvent;
 @Mixin(ClientConnection.class)
 public class ClientConnectionMixin {
     @Inject(method = "handlePacket", at = @At("HEAD"), cancellable = true)
-    private static void onPacket(Packet<?> packet, PacketListener listener, CallbackInfo ci) {
+    private static void onPacket(Packet packet, PacketListener listener, CallbackInfo ci) {
         if (listener instanceof ServerPlayNetworkHandler handler) {
             try (var invokers = Stimuli.select().forEntity(handler.player)) {
                 var result = invokers.get(PlayerC2SPacketEvent.EVENT).onPacket(handler.player, packet);

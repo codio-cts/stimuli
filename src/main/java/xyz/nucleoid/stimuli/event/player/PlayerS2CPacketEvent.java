@@ -1,12 +1,12 @@
 package xyz.nucleoid.stimuli.event.player;
 
-import net.minecraft.network.packet.Packet;
+import net.minecraft.network.Packet;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
 import xyz.nucleoid.stimuli.event.StimulusEvent;
 
 /**
- * Called when packet is send from server to {@link ServerPlayerEntity}
+ * Called when packet is sent from server to {@link ServerPlayerEntity}
  *
  * <p>Upon return:
  * <ul>

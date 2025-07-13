@@ -31,7 +31,7 @@ public class ServerPlayerInteractionManagerMixin {
             ),
             cancellable = true
     )
-    public void processBlockBreakingAction(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, int sequence, CallbackInfo ci) {
+    public void processBlockBreakingAction(BlockPos pos, PlayerActionC2SPacket.Action action, Direction direction, int worldHeight, CallbackInfo ci) {
         try (var invokers = Stimuli.select().forEntityAt(this.player, pos)) {
             var result = invokers.get(BlockPunchEvent.EVENT).onPunchBlock(this.player, direction, pos);
             if (result == ActionResult.FAIL) {

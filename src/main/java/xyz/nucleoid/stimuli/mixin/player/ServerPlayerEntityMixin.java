@@ -1,7 +1,9 @@
 package xyz.nucleoid.stimuli.mixin.player;
 
 import net.minecraft.entity.Entity;
+import net.minecraft.entity.ItemEntity;
 import net.minecraft.entity.damage.DamageSource;
+import net.minecraft.item.ItemStack;
 import net.minecraft.network.packet.s2c.play.ScreenHandlerSlotUpdateS2CPacket;
 import net.minecraft.server.network.ServerPlayerEntity;
 import net.minecraft.util.ActionResult;
@@ -45,17 +47,17 @@ public class ServerPlayerEntityMixin {
         }
     }
 
-    @Inject(method = "dropSelectedItem", at = @At("HEAD"), cancellable = true)
-    private void dropSelectedItem(boolean dropEntireStack, CallbackInfoReturnable<Boolean> ci) {
+    @Inject(method = "dropItem", at = @At("HEAD"), cancellable = true)
+    private void dropSelectedItem(ItemStack stack2, boolean throwRandomly, boolean retainOwnership, CallbackInfoReturnable<ItemEntity> cir) {
         var player = (ServerPlayerEntity) (Object) this;
-        int slot = player.getInventory().selectedSlot;
-        var stack = player.getInventory().getStack(slot);
+        int slot = player.inventory.selectedSlot;
+        var stack = player.inventory.getStack(slot);
 
         try (var invokers = Stimuli.select().forEntity(player)) {
             var result = invokers.get(ItemThrowEvent.EVENT).onThrowItem(player, slot, stack);
             if (result == ActionResult.FAIL) {
-                player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(ScreenHandlerSlotUpdateS2CPacket.UPDATE_PLAYER_INVENTORY_SYNC_ID, 0, slot, stack));
-                ci.setReturnValue(false);
+                player.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(0, slot, stack));
+                cir.setReturnValue(null);
             }
         }
     }

@@ -6,7 +6,7 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.world.ChunkRegion;
 import net.minecraft.world.ServerWorldAccess;
 import net.minecraft.world.WorldAccess;
-import net.minecraft.world.dimension.NetherPortal;
+import net.minecraft.world.dimension.AreaHelper;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,7 +17,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import xyz.nucleoid.stimuli.Stimuli;
 import xyz.nucleoid.stimuli.event.world.NetherPortalOpenEvent;
 
-@Mixin(NetherPortal.class)
+@Mixin(AreaHelper.class)
 public class NetherPortalMixin {
     @Shadow @Final private WorldAccess world;
     @Shadow @Nullable private BlockPos lowerCorner;

@@ -1,5 +1,6 @@
 package xyz.nucleoid.stimuli.mixin.projectile;
 
+import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.projectile.PersistentProjectileEntity;
 import net.minecraft.entity.projectile.ProjectileEntity;
@@ -16,7 +17,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.At.Shift;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 import xyz.nucleoid.stimuli.Stimuli;
 import xyz.nucleoid.stimuli.event.projectile.ArrowFireEvent;
 
@@ -25,7 +25,6 @@ public class CrossbowItemMixin {
     @Inject(
             method = "shoot",
             at = @At(value = "INVOKE", shift = Shift.BEFORE, target = "Lnet/minecraft/world/World;spawnEntity(Lnet/minecraft/entity/Entity;)Z"),
-            locals = LocalCapture.CAPTURE_FAILHARD,
             cancellable = true
     )
     private static void shoot(
@@ -40,8 +39,7 @@ public class CrossbowItemMixin {
             float divergence,
             float simulated,
             CallbackInfo ci,
-            boolean firework,
-            ProjectileEntity projectile
+            @Local ProjectileEntity projectile
     ) {
         if (!(user instanceof ServerPlayerEntity)) {
             return;

@@ -34,7 +34,7 @@ public class FlowerPotBlockMixin {
                 // notify the client that this action did not go through
                 int slot = hand == Hand.MAIN_HAND ? serverPlayer.inventory.selectedSlot : 40;
                 var stack = serverPlayer.getStackInHand(hand);
-                serverPlayer.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(0, slot, stack));
+                serverPlayer.networkHandler.sendPacket(new ScreenHandlerSlotUpdateS2CPacket(-2, slot, stack));
 
                 ci.setReturnValue(ActionResult.CONSUME);
             }
